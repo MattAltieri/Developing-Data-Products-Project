@@ -10,7 +10,16 @@ shinyUI(fluidPage(
         column(2,
                br(),
                br(),
-               submitButton("Submit"))
+               actionButton("submit", "Submit"))
     ),
-    hr()
+    hr(),
+    fluidRow(
+        column(11,
+               h3("Current Report Settings"))),
+    fluidRow(
+        column(3,
+            htmlOutput("assoc")),
+        column(5,
+            htmlOutput("dates"))
+    )
 ))
