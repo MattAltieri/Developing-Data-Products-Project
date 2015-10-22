@@ -10,7 +10,8 @@ shinyUI(fluidPage(
         column(2,
                br(),
                br(),
-               actionButton("submit", "Submit"))
+               #actionButton("submit", "Submit"))
+               submitButton("Submit"))
     ),
     hr(),
     fluidRow(

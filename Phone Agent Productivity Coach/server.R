@@ -1,5 +1,7 @@
 require(shiny)
 require(ggplot2)
+require(dplyr)
+require(lubridate)
 
 associates <<- as.character(read.csv('./Data/Associate Names.csv')$Names)
 prod.data <<- read.csv('./Data/Productivity Data.csv')
@@ -14,14 +16,36 @@ shinyServer(function(input, output, session) {
     })
 
     output$assoc <- renderText({
-        input$submit
-        isolate(paste(strong("Productivity for:"),input$assoc))
+        paste(strong("Productivity for:"),input$assoc)
     })
     output$dates <- renderText({
-        input$submit
-        isolate(paste(strong("Report Date:"),
-                      input$dates[1],
-                      "-",
-                      input$dates[2]))
+        paste(strong("Report Date:"),
+              input$dates[1],
+              "to",
+              input$dates[2])
+    })
+    
+    output$prod.plot <- renderPlot({
+        # Need selector for stat to examine
+        # Pull field names, add name of stat being calculated
+        # Use selector to add field for stat being calculated
+        # Apply names vector back to dataframe names
+        # Summarize data
+        # Plot data
+        assoc.data <- prod.data[which(prod.data==input$assoc),] %>%
+            group_by(week(Date)) %>%
+            summarize(sum(Calls),
+                      weighted.mean(Talk.Time, Calls),
+                      weighted.mean(Hold.Time, Calls),
+                      weighted.mean(Followup.Time, Calls),
+                      weighted.mean(Total.Call.Time, Calls))
+        sum.data <- prod.data %>%
+            group_by(week(Date)) %>%
+            summarize(sum(Calls),
+                      weighted.mean(Talk.Time, Calls),
+                      weighted.mean(Hold.Time, Calls),
+                      weighted.mean(Followup.Time, Calls),
+                      weighted.mean(Total.Call.Time, Calls))
+        ggplot()
     })
 })
