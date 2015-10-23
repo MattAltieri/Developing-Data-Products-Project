@@ -6,7 +6,8 @@ shinyUI(fluidPage(
         column(2,
                selectInput("assoc", h4("Associate Name"), choices=NULL)),
         column(4,
-               dateRangeInput("dates", h4("Select Date Range")),
+               dateRangeInput("dates", h4("Select Date Range"),
+                              start="2015-01-01"),
                selectInput("lvl_dtl", h4("Report Granularity"),
                            choices=NULL)),
         column(3,
@@ -16,7 +17,6 @@ shinyUI(fluidPage(
                br(),
                br(),
                actionButton("submit", "Submit"))
-               #submitButton("Submit"))
     ),
     hr(),
     fluidRow(
@@ -35,8 +35,8 @@ shinyUI(fluidPage(
                htmlOutput("rpts"))),
     fluidRow(
         column(12,
-               tableOutput("assoc.table"))),
+               tableOutput("plot.data.table"))),
     fluidRow(
         column(12,
-               tableOutput("sum.table")))
+               plotOutput("prod.plot")))
 ))

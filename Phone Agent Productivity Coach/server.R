@@ -10,6 +10,8 @@ prod.data$Total.Call.Time <<- prod.data$Talk.Time + prod.data$Hold.Time +
     prod.data$Followup.Time
 prod.data <<- mutate(prod.data, Date=mdy(Date))
 
+submits <<- 0
+
 lvl.dtl <<- as.data.frame(rbind(
         c("Daily","as.character"), #FIX THIS
         c("Weekly","week"),
@@ -32,9 +34,9 @@ shinyServer(function(input, output, session) {
         updateSelectInput(session, "assoc",
             choices=c("Choose one"="",associates))
         updateSelectInput(session, "lvl_dtl",
-            choices=c("Choose one"="",lvl.dtl$name))
+            choices=lvl.dtl$name)
         updateSelectInput(session, "rpts",
-            choices=c("Choose one"="",reports$name))
+            choices=reports$name)
     })
 
     output$assoc <- renderText({
@@ -64,32 +66,46 @@ shinyServer(function(input, output, session) {
     
     assoc.data <- reactive({
         prod.data %>%
-            filter(Associate==input$assoc) %>%
-            group_by_(interp(~f(Date), f=as.name(lvl.dtl.func()))) %>%
+            filter(Associate==input$assoc &
+                       as.Date(Date) >= input$dates[1] &
+                       as.Date(Date) <= input$dates[2]) %>%
+            group_by_(Timeframe=interp(~f(Date), f=as.name(lvl.dtl.func()))) %>%
             summarize_(mean.stats=interp(~weighted.mean(x, w),
                                          x=as.name(rpt.var()),
-                                         w=as.name("Calls")))
+                                         w=as.name("Calls"))) %>%
+            mutate(data.type=input$assoc)
     })
     sum.data <- reactive({
         prod.data %>%
-            group_by_(interp(~f(Date), f=as.name(lvl.dtl.func()))) %>%
+            filter(as.Date(Date) >= input$dates[1] &
+                       as.Date(Date) <= input$dates[2]) %>%
+            group_by_(Timeframe=interp(~f(Date), f=as.name(lvl.dtl.func()))) %>%
             summarize_(mean.stats=interp(~weighted.mean(x, w),
                                          x=as.name(rpt.var()),
-                                         w=as.name("Calls")))
+                                         w=as.name("Calls"))) %>%
+            mutate(data.type="Team")
     })
     
-    # Need selector for stat to examine
-    # Pull field names, add name of stat being calculated
-    # Use selector to add field for stat being calculated
-    # Apply names vector back to dataframe names
-    # Summarize data
-    # Plot data    
-    output$assoc.table <- renderTable({
-        if(input$submit>0)
-            isolate(assoc.data())
+    plot.data <- reactive(rbind(assoc.data(), sum.data()))
+    
+    g <- reactive({
+        ggplot(data=plot.data(), aes(x=Timeframe, y=mean.stats, color=data.type)) +
+            geom_line(aes(group=data.type))
     })
-    output$sum.table <- renderTable({
-        if(input$submit>0)
-            isolate(sum.data())
+    
+#     output$plot.data.table <- renderTable({
+#         if (input$submit > submits) {
+#             submits <<- submits + 1
+#             if (input$assoc != "" & input$lvl_dtl != "" & input$rpts != "")
+#                 isolate(plot.data())
+#         }
+#     })
+    
+    output$prod.plot <- renderPlot({
+        if (input$submit > submits) {
+            submits <<- submits + 1
+            if (input$assoc != "" & input$lvl_dtl != "" & input$rpts != "")
+                isolate(g())
+        }
     })
 })
