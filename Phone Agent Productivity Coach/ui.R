@@ -3,17 +3,20 @@ require(shiny)
 shinyUI(fluidPage(
     titlePanel("Phone Agent Productivity Coach"),
     fluidRow(
-        column(2,
-               selectInput("assoc", h4("Associate Name"), choices=NULL)),
+        column(4,
+               selectInput("assoc", h4("Associate Name"), choices=NULL),
+               selectInput("metrics", h4("Metric"),
+                           choices=NULL)),
         column(4,
                dateRangeInput("dates", h4("Select Date Range"),
                               start="2015-01-01"),
                selectInput("lvl_dtl", h4("Report Granularity"),
                            choices=NULL)),
-        column(3,
-               selectInput("rpts", h4("Comparison Report"),
-                           choices=NULL)),
         column(2,
+               br(),
+               br(),
+               br(),
+               br(),
                br(),
                br(),
                actionButton("submit", "Submit"))
@@ -32,10 +35,10 @@ shinyUI(fluidPage(
         column(3,
                htmlOutput("lvl_dtl")),
         column(3,
+               htmlOutput("metrics")),
+        column(3,
                htmlOutput("rpts"))),
-    fluidRow(
-        column(12,
-               tableOutput("plot.data.table"))),
+    hr(),
     fluidRow(
         column(12,
                plotOutput("prod.plot")))

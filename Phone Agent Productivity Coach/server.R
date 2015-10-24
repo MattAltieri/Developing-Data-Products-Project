@@ -35,7 +35,7 @@ shinyServer(function(input, output, session) {
             choices=c("Choose one"="",associates))
         updateSelectInput(session, "lvl_dtl",
             choices=lvl.dtl$name)
-        updateSelectInput(session, "rpts",
+        updateSelectInput(session, "metrics",
             choices=reports$name)
     })
 
@@ -52,13 +52,13 @@ shinyServer(function(input, output, session) {
         input$submit
         isolate(paste(strong("Report Granularity:"), input$lvl_dtl))
     })
-    output$rpts <- renderText({
+    output$metrics <- renderText({
         input$submit
-        isolate(paste(strong("Report Type:"), input$rpts))
+        isolate(paste(strong("Metric:"), input$metrics))
     })
     
     rpt.var <- reactive({
-        reports[which(reports$name==input$rpts),"var"]
+        reports[which(reports$name==input$metrics),"var"]
     })
     lvl.dtl.func <- reactive({
         lvl.dtl[which(lvl.dtl$name==input$lvl_dtl),"func"]
@@ -93,18 +93,10 @@ shinyServer(function(input, output, session) {
             geom_line(aes(group=data.type))
     })
     
-#     output$plot.data.table <- renderTable({
-#         if (input$submit > submits) {
-#             submits <<- submits + 1
-#             if (input$assoc != "" & input$lvl_dtl != "" & input$rpts != "")
-#                 isolate(plot.data())
-#         }
-#     })
-    
     output$prod.plot <- renderPlot({
         if (input$submit > submits) {
             submits <<- submits + 1
-            if (input$assoc != "" & input$lvl_dtl != "" & input$rpts != "")
+            if (input$assoc != "" & input$lvl_dtl != "" & input$metrics != "")
                 isolate(g())
         }
     })
