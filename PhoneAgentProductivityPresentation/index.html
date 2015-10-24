@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Phone Agent Productivity</title>
+  <meta name="description" content="">
+  <meta name="author" content="Matt Altieri">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="stylesheet" href="libraries/frameworks/revealjs/css/reveal.min.css">
+  <link rel="stylesheet" href="libraries/frameworks/revealjs/css/theme/sky.css" id="theme">
+  <link rel="stylesheet" href="libraries/highlighters/prettify/css/tomorrow-night-bright.css" id="theme">
+  <!--[if lt IE 9]>
+  <script src="lib/js/html5shiv.js"></script>
+  <![endif]-->  <link rel="stylesheet" href = "assets/css/ribbons.css">
+<link rel="stylesheet" href = "assets/css/sky.css">
+<link rel="stylesheet" href = "assets/css/tomorrow-night-bright.css">
+
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+      <section class='' data-state='' id='slide-1'>
+  <h1>Phone Agent Productivity</h1>
+  <p><br /></p>
+
+<p><br /></p>
+
+<h3>Dynamic Web Reporting using <code>R</code> and <code>Shiny</code></h3>
+
+</section>
+<section class='' data-state='' id='slide-2'>
+  <h2>The Problem</h2>
+  <p><br /></p>
+
+<h3>A good call center has three primary goals:</h3>
+
+<ol>
+<li>Answer as many customer calls as possible</li>
+<li>In a cost-effective manner</li>
+<li>While placing an emphasis on customer service</li>
+</ol>
+
+<p><br /></p>
+
+<p>Meeting these goals depends on effective coaching, and effective coaching depends on robust, agile analytics...</p>
+
+<p><br /></p>
+
+<p><span>...</span> but traditional reporting techniques only allow static reports that must be updated and changed manually by a team of analysts.</p>
+
+</section>
+<section class='' data-state='' id='slide-3'>
+  <h2>The Solution</h2>
+  <h4>Put the power of reporting in management&#39;s hands!</h4>
+
+<p>With dynamic web reports, each user can generate a custom report -- designed to their requirements -- in seconds!</p>
+
+<p><img src="ShinyApp.PNG" alt=""></p>
+
+</section>
+<section class='' data-state='' id='slide-4'>
+  <h2>Under the Hood</h2>
+  <h4>When <code>Submit</code> is clicked, custom code is executed behind the scenes</h4>
+
+<pre><code class="r">library(dplyr); library(lubridate)
+
+# Process selected associate&#39;s data
+assoc.data &lt;- prod.data %&gt;%
+    filter(Associate==&quot;Richard&quot; &amp;
+               as.Date(Date) &gt;= as.Date(&quot;2015-01-01&quot;) &amp;
+               as.Date(Date) &lt;= as.Date(&quot;2015-10-24&quot;)) %&gt;%
+    group_by(Timeframe=week(Date)) %&gt;%
+    summarize(mean.stats=weighted.mean(Total.Time, Calls)) %&gt;%
+    mutate(data.type=&quot;Richard&quot;)
+
+# Process team&#39;s data for comparison
+sum.data &lt;- prod.data %&gt;%
+    filter(as.Date(Date) &gt;= as.Date(&quot;2015-01-01&quot;) &amp;
+               as.Date(Date) &lt;= as.Date(&quot;2015-10-24&quot;)) %&gt;%
+    group_by(Timeframe=week(Date)) %&gt;%
+    summarize(mean.stats=weighted.mean(Total.Time, Calls)) %&gt;%
+    mutate(data.type=&quot;Team&quot;)
+
+# Store for plotting
+plot.data &lt;- rbind(assoc.data, sum.data)
+</code></pre>
+
+</section>
+<section class='' data-state='' id='slide-5'>
+  <h2>Instant Analytics</h2>
+  <h4>For the user, the requested analysis displays on the screen <em>in an instant</em></h4>
+
+<pre><code class="r">require(ggplot2); require(ggthemes); tableau &lt;- tableau_color_pal(&quot;tableau10&quot;)(2)
+
+ggplot(data=plot.data, aes(x=Timeframe, y=mean.stats, color=data.type)) +
+    geom_line(aes(group=data.type), size=1.5) +
+    ggtitle(&quot;Richard - Weekly Total Time&quot;) + xlab(&quot;Weekly&quot;) + ylab(&quot;Total Time&quot;) +
+    scale_color_manual(values=tableau) + theme_bw() + guides(col=guide_legend(title=&quot;&quot;))
+</code></pre>
+
+<div class="rimage center"><img src="fig/unnamed-chunk-2-1.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" class="plot" /></div>
+
+</section>
+    </div>
+  </div>
+</body>
+  <script src="libraries/frameworks/revealjs/lib/js/head.min.js"></script>
+  <script src="libraries/frameworks/revealjs/js/reveal.min.js"></script>
+  <script>
+  // Full list of configuration options available here:
+  // https://github.com/hakimel/reveal.js#configuration
+  Reveal.initialize({
+    controls: true,
+    progress: true,
+    history: true,
+    center: true,
+    theme: Reveal.getQueryHash().theme || 'sky', 
+    transition: Reveal.getQueryHash().transition || 'linear', 
+    dependencies: [
+    // Cross-browser shim that fully implements classList -
+    // https://github.com/eligrey/classList.js/
+      { src: 'libraries/frameworks/revealjs/lib/js/classList.js', condition: function() { return !document.body.classList;}},
+      // Zoom in and out with Alt+click
+      { src: 'libraries/frameworks/revealjs/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      // Speaker notes
+      { src: 'libraries/frameworks/revealjs/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+      // Remote control your reveal.js presentation using a touch device
+      //{ src: 'libraries/frameworks/revealjs/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+      ]
+  });
+  </script>  <!-- Google Prettify -->
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+<script src='libraries/highlighters/prettify/js/lang-r.js'></script>
+<script>
+  var pres = document.getElementsByTagName("pre");
+  for (var i=0; i < pres.length; ++i) {
+    pres[i].className = "prettyprint linenums";
+  }
+  prettyPrint();
+</script>
+<!-- End Google Prettify --> 
+
+</html>

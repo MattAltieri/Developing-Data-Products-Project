@@ -1,0 +1,10 @@
+base
+shiny
+ggplot2
+ggthemes
+dplyr
+lubridate
+lazyeval
+shinyapps
+slidify
+knitr
